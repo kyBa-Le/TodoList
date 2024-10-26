@@ -5,8 +5,6 @@ import jakarta.validation.Payload;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.hibernate.validator.constraints.UniqueElements;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -16,7 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @NotNull
 @NotBlank
-@Email(message = "Email must be written in format example@email.com")
+@Email
 @Constraint(validatedBy = {})
 public @interface EmailRule {
     String message() default "Email address is in valid";

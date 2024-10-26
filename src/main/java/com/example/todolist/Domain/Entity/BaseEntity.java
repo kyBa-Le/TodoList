@@ -7,7 +7,7 @@ import java.util.UUID;
 @MappedSuperclass
 public abstract class BaseEntity {
     @Id
-    private String id = UUID.randomUUID().toString();
+    protected final String id = UUID.randomUUID().toString();
 
     public String getId() {
         return id;

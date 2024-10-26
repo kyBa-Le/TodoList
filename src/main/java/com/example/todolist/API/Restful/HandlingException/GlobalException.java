@@ -1,30 +1,24 @@
 package com.example.todolist.API.Restful.HandlingException;
 
+import com.example.todolist.API.Restful.Dto.Base.ApiError;
+import com.example.todolist.Domain.Exception.HasErrorCodeException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 @ControllerAdvice
 public class GlobalException {
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    public ResponseEntity<List<APIError>> invalidArgument(MethodArgumentNotValidException exception){
-        List<APIError> errors = new ArrayList<>();
-        exception.getBindingResult().getFieldErrors().forEach((error) -> {
-            APIError apiError = new APIError(error.getField(), error.getCode(), error.getDefaultMessage(), new Date());
-            errors.add(apiError);
-        });
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    public ResponseEntity<ApiError> invalidArgument(MethodArgumentNotValidException exception){
+        ApiError apiError = ApiError.FromMethodArgumentNotValidExceptionToApiError(exception, "Validation Failed");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
-    @ExceptionHandler(value = ExistingValueException.class)
-    public ResponseEntity<List<APIError>> invalidArgument(ExistingValueException exception){
-        List<APIError> errors = new ArrayList<>();
-        APIError apiError = new APIError(exception.getFieldName(), exception.getCode(),exception.getMessage(), exception.getTimestamp());
-        errors.add(apiError);
-        return new ResponseEntity<>(errors, HttpStatus.NOT_ACCEPTABLE);
+
+    @ExceptionHandler(value = HasErrorCodeException.class)
+    public ResponseEntity<ApiError> duplicatedValue(HasErrorCodeException exception){
+        ApiError apiError = ApiError.FromHasErrorCodeExceptionToApiError(exception, "Duplicated Value");
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(apiError);
     }
 }
