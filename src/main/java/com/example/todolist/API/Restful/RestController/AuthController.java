@@ -1,7 +1,10 @@
 package com.example.todolist.API.Restful.RestController;
 
+import com.example.todolist.API.Restful.Dto.Base.ApiError;
 import com.example.todolist.API.Restful.Dto.Request.SignUpRequest;
 import com.example.todolist.API.Restful.Dto.Response.SignUpResponse;
+import com.example.todolist.Domain.Exception.DuplicatedUserEmailException;
+import com.example.todolist.Domain.Exception.DuplicatedUsernameException;
 import com.example.todolist.Domain.Service.UserService;
 import com.example.todolist.Infrastructure.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,16 +24,24 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody @Valid SignUpRequest signUpRequest, HttpServletRequest request) {
-        var user = userService.createUser(
-                signUpRequest.username(),
-                signUpRequest.password(),
-                signUpRequest.email(),
-                signUpRequest.phone());
-        userRepository.save(user);
+        try {
+            var user = userService.createUser(
+                    signUpRequest.username(),
+                    signUpRequest.password(),
+                    signUpRequest.email(),
+                    signUpRequest.phone());
+            userRepository.save(user);
 
-        HttpSession session = request.getSession();
-        session.setAttribute("user_id", user.getId());
+            HttpSession session = request.getSession();
+            session.setAttribute("user_id", user.getId());
 
-        return ResponseEntity.status(201).body(new SignUpResponse());
+            return ResponseEntity.status(201).body(new SignUpResponse());
+        } catch (DuplicatedUsernameException e) {
+            ApiError error = ApiError.FromHasErrorCodeExceptionToApiError("username", e);
+            return ResponseEntity.badRequest().body(error);
+        } catch (DuplicatedUserEmailException e) {
+            ApiError error = ApiError.FromHasErrorCodeExceptionToApiError("email", e);
+            return ResponseEntity.badRequest().body(error);
+        }
     }
 }

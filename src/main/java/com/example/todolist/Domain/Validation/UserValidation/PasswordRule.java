@@ -15,10 +15,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @NotNull
 @NotBlank
-@Size(min = 6, message = "Password must be at least 6 characters")
+@Size(min = 6, max = 255)
 @Constraint(validatedBy = {})
 public @interface PasswordRule {
-    String message() default "Password is invalid";
+    String message() default "";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

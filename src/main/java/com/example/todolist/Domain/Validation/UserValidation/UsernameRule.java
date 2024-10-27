@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Size(min=4, max = 25)
 @Constraint(validatedBy = {})
 public @interface UsernameRule {
-    String message() default "Invalid username";
+    String message() default "";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

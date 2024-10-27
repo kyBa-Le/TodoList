@@ -14,11 +14,11 @@ public class UserService {
 
     public User createUser(String username, String password, String email, String phoneNumber) {
         if (userRepository.findByUsername(username) != null) {
-            throw new DuplicatedUsernameException("username", "username already exists");
+            throw new DuplicatedUsernameException("username", "Already exists");
         }
 
         if (userRepository.findByEmail(email) != null) {
-            throw new DuplicatedUserEmailException("email", "email already exists");
+            throw new DuplicatedUserEmailException("email", "Already exists");
         }
 
         return new User(username, password, email, phoneNumber);

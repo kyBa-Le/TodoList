@@ -17,7 +17,7 @@ import java.lang.annotation.Target;
 @Email
 @Constraint(validatedBy = {})
 public @interface EmailRule {
-    String message() default "Email address is in valid";
+    String message() default "";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }

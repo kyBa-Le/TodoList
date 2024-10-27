@@ -1,6 +1,7 @@
 package com.example.todolist.Infrastructure.Configuration;
 
 import com.example.todolist.Domain.Interceptor.AuthenticationInterceptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -10,7 +11,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @EnableWebMvc
 public class WebConfiguration implements WebMvcConfigurer {
 
+    @Autowired
+    private AuthenticationInterceptor authenticationInterceptor;
+
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new AuthenticationInterceptor()).addPathPatterns("/**");
+        registry.addInterceptor(authenticationInterceptor).addPathPatterns("/**");
     }
 }

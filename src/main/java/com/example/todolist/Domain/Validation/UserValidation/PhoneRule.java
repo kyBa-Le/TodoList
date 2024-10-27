@@ -14,10 +14,10 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @NotNull
 @NotBlank
-@Size(min = 10, max = 10, message = "Phone number have to has 10 numbers")
+@Size(min = 10, max = 10)
 @Constraint(validatedBy = {})
 public @interface PhoneRule {
-    String message() default "Invalid phone number";
+    String message() default "";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
 }
