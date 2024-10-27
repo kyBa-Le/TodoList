@@ -1,6 +1,6 @@
 package com.example.todolist.Infrastructure.Configuration;
 
-import com.example.todolist.Domain.Interceptor.AuthenticationInterceptor;
+import com.example.todolist.API.Restful.Interceptor.AuthenticationInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;

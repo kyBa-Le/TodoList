@@ -1,4 +1,4 @@
-package com.example.todolist.Domain.Interceptor;
+package com.example.todolist.API.Restful.Interceptor;
 
 import com.example.todolist.Infrastructure.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
