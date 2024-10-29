@@ -15,7 +15,7 @@ import java.util.List;
 public class AuthenticationInterceptor implements HandlerInterceptor {
     @Autowired
     private UserRepository userRepository;
-    private final List<String> acceptedPaths = Arrays.asList("/signup", "/login");
+    private final List<String> acceptedPaths = Arrays.asList("/signup", "/sign-in");
 
 
     @Override
