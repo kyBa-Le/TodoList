@@ -55,12 +55,11 @@ public class AuthController {
     public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequest signInRequest, HttpServletRequest request) {
         User user = userRepository.findUserByEmailAndPassword(signInRequest.email(), signInRequest.password());
         if (user == null) {
-            return ResponseEntity.badRequest().body(new Response("Sign in failed"));
-        } else {
-            HttpSession session = request.getSession();
-            session.setAttribute("user_id", user.getId());
-
-            return ResponseEntity.status(201).body(new ResponseWithData<>("Sign in successful",new SignInResponse(user.getId())));
+            return ResponseEntity.status(401).body(new Response("Sign in failed"));
         }
+        HttpSession session = request.getSession();
+        session.setAttribute("user_id", user.getId());
+
+        return ResponseEntity.status(200).body(new ResponseWithData<>("Sign in successful",new SignInResponse()));
     }
 }

@@ -1,6 +1,4 @@
 package com.example.todolist.API.Restful.Dto.Response;
 
-public record SignInResponse(
-        String userId
-) {
+public record SignInResponse() {
 }
