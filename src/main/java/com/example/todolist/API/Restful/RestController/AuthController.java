@@ -2,10 +2,8 @@ package com.example.todolist.API.Restful.RestController;
 
 import com.example.todolist.API.Restful.Dto.Base.ApiError;
 import com.example.todolist.API.Restful.Dto.Base.Response;
-import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.SignInRequest;
 import com.example.todolist.API.Restful.Dto.Request.SignUpRequest;
-import com.example.todolist.API.Restful.Dto.Response.SignInResponse;
 import com.example.todolist.Domain.Entity.User;
 import com.example.todolist.Domain.Exception.DuplicatedUserEmailException;
 import com.example.todolist.Domain.Exception.DuplicatedUsernameException;
@@ -57,9 +55,10 @@ public class AuthController {
         if (user == null) {
             return ResponseEntity.status(401).body(new Response("Sign in failed"));
         }
+
         HttpSession session = request.getSession();
         session.setAttribute("user_id", user.getId());
 
-        return ResponseEntity.status(200).body(new ResponseWithData<>("Sign in successful",new SignInResponse()));
+        return ResponseEntity.status(200).body(new Response("Sign in successful"));
     }
 }
