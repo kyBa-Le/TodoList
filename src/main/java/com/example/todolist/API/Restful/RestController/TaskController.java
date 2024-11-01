@@ -1,7 +1,8 @@
 package com.example.todolist.API.Restful.RestController;
 
-import com.example.todolist.API.Restful.Dto.Base.Response;
+import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
+import com.example.todolist.API.Restful.Dto.Response.CreateTaskResponse;
 import com.example.todolist.Domain.Entity.Task;
 import com.example.todolist.Domain.Service.TaskService;
 import com.example.todolist.Infrastructure.Repository.TaskRepository;
@@ -24,7 +25,7 @@ public class TaskController {
     private TaskRepository taskRepository;
 
     @PostMapping
-    public ResponseEntity<Response> createTask(@RequestBody @Valid CreateTaskRequest createTaskRequest, HttpServletRequest httpServletRequest) {
+    public ResponseEntity<?> createTask(@RequestBody @Valid CreateTaskRequest createTaskRequest, HttpServletRequest httpServletRequest) {
         HttpSession session = httpServletRequest.getSession(false);
         String userId = (String) session.getAttribute("user_id");
 
@@ -35,6 +36,7 @@ public class TaskController {
         );
 
         taskRepository.save(task);
-        return ResponseEntity.status(200).body(new Response("Task Created"));
+        return ResponseEntity.status(201).
+                body(new ResponseWithData<>("Create task successful", new CreateTaskResponse(task.getUserId())));
     }
 }

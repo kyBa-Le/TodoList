@@ -1,29 +1,28 @@
 package com.example.todolist.Domain.Entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.validation.constraints.NotBlank;
+import com.example.todolist.Domain.Validation.TaskValidation.TitleRule;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
 @Entity
 @Inheritance
 public class Task extends BaseEntity{
-    @NotNull
-    @NotBlank
+    @TitleRule
     private String title;
+
     private String description;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id")
     @NotNull
-    private User user;
+    private String userId;
 
-    public Task(String title, String description, User user) {
+    @ManyToOne
+    @JoinColumn(name = "id")
+    public User user;
+
+    public Task(String title, String description, String userId) {
         this.title = title;
         this.description = description;
-        this.user = user;
+        this.userId = userId;
     }
 
     protected Task() {}
@@ -44,7 +43,7 @@ public class Task extends BaseEntity{
         this.description = description;
     }
 
-    public User getUser() {
-        return user;
+    public String getUserId() {
+        return this.userId;
     }
 }

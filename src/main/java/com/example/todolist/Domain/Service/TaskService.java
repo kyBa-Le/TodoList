@@ -12,6 +12,11 @@ public class TaskService {
     private UserRepository userRepository;
     public Task createTask(String title, String description, String userId) {
         User user = userRepository.findUserById(userId);
-        return new Task(title, description, user);
+        if (user == null) {
+            throw new RuntimeException("User not found");
+            //todo: which field error would we return
+        }
+
+        return new Task(title, description, userId);
     }
 }
