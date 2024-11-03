@@ -1,9 +1,9 @@
 package com.example.todolist.API.Restful.Interceptor;
 
+import com.example.todolist.Infrastructure.Auth.AuthService;
 import com.example.todolist.Infrastructure.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Component;
@@ -13,19 +13,25 @@ import java.util.List;
 
 @Component
 public class AuthenticationInterceptor implements HandlerInterceptor {
+
+    private static final List<String> acceptedPaths = Arrays.asList("/signup", "/sign-in");
+
     @Autowired
     private UserRepository userRepository;
-    private final List<String> acceptedPaths = Arrays.asList("/signup", "/sign-in");
-
+    @Autowired
+    private AuthService authService;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
-        HttpSession session = request.getSession(false);
-        String requestPath = request.getServletPath();
+    public boolean preHandle(@NonNull  HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
+        var user = authService.getSession(request);
+        var requestPath = request.getServletPath();
 
-        var isAuthenticated = (session != null && userRepository.findUserById( (String) session.getAttribute("user_id")) != null);
+        var isAuthenticated = user != null && userRepository.findUserById(user.userId()) != null;
         var isAcceptedPath = acceptedPaths.contains(requestPath);
 
+        if (!isAuthenticated && !isAcceptedPath) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
         return (isAuthenticated || isAcceptedPath);
     }
 }

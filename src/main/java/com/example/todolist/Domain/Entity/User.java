@@ -4,7 +4,9 @@ import com.example.todolist.Domain.Validation.UserValidation.EmailRule;
 import com.example.todolist.Domain.Validation.UserValidation.PasswordRule;
 import com.example.todolist.Domain.Validation.UserValidation.PhoneRule;
 import com.example.todolist.Domain.Validation.UserValidation.UsernameRule;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import java.util.List;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -23,6 +25,10 @@ public class User extends BaseEntity {
 
     @PhoneRule
     private String phone;
+
+    @OneToMany(mappedBy = "user")
+    @JsonIgnoreProperties("tasks")
+    public List<Task> tasks;
 
     protected User() {}
     public User(String username, String password, String email, String phone) {

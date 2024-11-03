@@ -1,4 +1,4 @@
-package com.example.todolist.Infrastructure.Configuration;
+package com.example.todolist.Configuration;
 
 import com.example.todolist.API.Restful.Interceptor.AuthenticationInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;

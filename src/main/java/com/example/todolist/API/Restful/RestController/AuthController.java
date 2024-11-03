@@ -8,9 +8,10 @@ import com.example.todolist.Domain.Entity.User;
 import com.example.todolist.Domain.Exception.DuplicatedUserEmailException;
 import com.example.todolist.Domain.Exception.DuplicatedUsernameException;
 import com.example.todolist.Domain.Service.UserService;
+import com.example.todolist.Infrastructure.Auth.AuthService;
+import com.example.todolist.Infrastructure.Auth.Dto.UserSessionDto;
 import com.example.todolist.Infrastructure.Repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,6 +24,8 @@ public class AuthController {
     UserService userService;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    AuthService authService;
 
     @PostMapping("/signup")
     public ResponseEntity<?> signUp(@RequestBody @Valid SignUpRequest signUpRequest, HttpServletRequest request) {
@@ -34,8 +37,7 @@ public class AuthController {
                     signUpRequest.phone());
             userRepository.save(user);
 
-            HttpSession session = request.getSession();
-            session.setAttribute("user_id", user.getId());
+            authService.newSession(request, new UserSessionDto(user.getId()));
 
             return ResponseEntity.status(201).body(new Response("Sign up successful"));
 
@@ -56,8 +58,7 @@ public class AuthController {
             return ResponseEntity.status(401).body(new Response("Sign in failed"));
         }
 
-        HttpSession session = request.getSession();
-        session.setAttribute("user_id", user.getId());
+        authService.newSession(request, new UserSessionDto(user.getId()));
 
         return ResponseEntity.status(200).body(new Response("Sign in successful"));
     }
