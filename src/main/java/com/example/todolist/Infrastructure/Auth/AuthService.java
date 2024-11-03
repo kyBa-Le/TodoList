@@ -1,20 +1,30 @@
 package com.example.todolist.Infrastructure.Auth;
 
+import com.example.todolist.Infrastructure.Auth.Dto.UserSessionDto;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Component;
 
 @Component
 public class AuthService {
-    public String getAttributeFromSession(HttpServletRequest request, Boolean isNewSession, String attribute) {
-        if (request.getSession(isNewSession) == null) {
-            return null;
-        }
-        return request.getSession(isNewSession).getAttribute(attribute).toString();
+
+    private final String UserSessionKey = "userSession";
+
+    /**
+     * set new session and cookie
+     * */
+    public void newSession(HttpServletRequest request, UserSessionDto userSession) {
+        var session = request.getSession(true);
+        session.setAttribute(UserSessionKey, userSession);
     }
 
-    public void setAttributeInSession(HttpServletRequest request, Boolean isNewSession, String attribute, String value) {
-        HttpSession session = request.getSession(isNewSession);
-        session.setAttribute(attribute, value);
+    /**
+     * get existing session
+     */
+    public UserSessionDto getSession(HttpServletRequest request) {
+        var session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        return (UserSessionDto) session.getAttribute(UserSessionKey);
     }
 }

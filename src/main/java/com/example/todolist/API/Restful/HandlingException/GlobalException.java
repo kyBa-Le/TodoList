@@ -14,5 +14,4 @@ public class GlobalException {
         ApiError apiError = ApiError.FromMethodArgumentNotValidExceptionToApiError(exception);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
     }
-
 }
