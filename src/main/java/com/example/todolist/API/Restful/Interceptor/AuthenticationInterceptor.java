@@ -13,17 +13,18 @@ import java.util.List;
 
 @Component
 public class AuthenticationInterceptor implements HandlerInterceptor {
+
+    private static final List<String> acceptedPaths = Arrays.asList("/signup", "/sign-in");
+
     @Autowired
     private UserRepository userRepository;
     @Autowired
     private AuthService authService;
-    private final List<String> acceptedPaths = Arrays.asList("/signup", "/sign-in");
-
 
     @Override
     public boolean preHandle(@NonNull  HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
-        String userId = authService.getAttributeFromSession(request, false, "user_id");
-        String requestPath = request.getServletPath();
+        var userId = authService.getSession(request).userId();
+        var requestPath = request.getServletPath();
 
         var isAuthenticated = userRepository.findUserById(userId) != null;
         var isAcceptedPath = acceptedPaths.contains(requestPath);
