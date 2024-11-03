@@ -1,13 +1,15 @@
 package com.example.todolist.API.Restful.RestController;
 
+import com.example.todolist.API.Restful.Dto.Base.ApiError;
 import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
-import com.example.todolist.API.Restful.Dto.Response.CreateTaskResponse;
+import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
 import com.example.todolist.Domain.Entity.Task;
+import com.example.todolist.Domain.Exception.UserNotFoundException;
 import com.example.todolist.Domain.Service.TaskService;
 import com.example.todolist.Infrastructure.Repository.TaskRepository;
+import com.example.todolist.Infrastructure.RestfulService.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -23,20 +25,26 @@ public class TaskController {
     private TaskService taskService;
     @Autowired
     private TaskRepository taskRepository;
+    @Autowired
+    private AuthService authService;
 
     @PostMapping
     public ResponseEntity<?> createTask(@RequestBody @Valid CreateTaskRequest createTaskRequest, HttpServletRequest httpServletRequest) {
-        HttpSession session = httpServletRequest.getSession(false);
-        String userId = (String) session.getAttribute("user_id");
+        String userId = authService.getUserIdFromSession(httpServletRequest);
 
-        Task task = taskService.createTask(
-                createTaskRequest.title(),
-                createTaskRequest.description(),
-                userId
-        );
+        try {
+            Task task = taskService.createTask(
+                    userId,
+                    createTaskRequest.title(),
+                    createTaskRequest.description()
+            );
 
-        taskRepository.save(task);
-        return ResponseEntity.status(201).
-                body(new ResponseWithData<>("Create task successful", new CreateTaskResponse(task.getUserId())));
+            taskRepository.save(task);
+            return ResponseEntity.status(201).
+                    body(new ResponseWithData<>("Create task successful", new TaskResponse(task.getUserId())));
+        } catch (UserNotFoundException e) {
+            ApiError apiError = ApiError.FromHasErrorCodeExceptionToApiError("session", e);
+            return ResponseEntity.status(401).body(apiError);
+        }
     }
 }

@@ -26,7 +26,7 @@ public class User extends BaseEntity {
     @PhoneRule
     private String phone;
 
-    @OneToMany(mappedBy = "userId")
+    @OneToMany(mappedBy = "user")
     @JsonIgnoreProperties("tasks")
     public List<Task> tasks;
 

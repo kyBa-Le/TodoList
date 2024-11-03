@@ -13,10 +13,11 @@ public class Task extends BaseEntity{
     private String description;
 
     @NotNull
+    @Column(name = "user_id")
     private String userId;
 
     @ManyToOne
-    @JoinColumn(name = "id")
+    @JoinColumn(name = "user_id", insertable=false, updatable=false)
     public User user;
 
     public Task(String title, String description, String userId) {
