@@ -23,12 +23,15 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(@NonNull  HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) {
-        var userId = authService.getSession(request).userId();
+        var user = authService.getSession(request);
         var requestPath = request.getServletPath();
 
-        var isAuthenticated = userRepository.findUserById(userId) != null;
+        var isAuthenticated = user != null && userRepository.findUserById(user.userId()) != null;
         var isAcceptedPath = acceptedPaths.contains(requestPath);
 
+        if (!isAuthenticated && !isAcceptedPath) {
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        }
         return (isAuthenticated || isAcceptedPath);
     }
 }

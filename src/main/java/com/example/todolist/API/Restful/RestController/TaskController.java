@@ -1,10 +1,8 @@
 package com.example.todolist.API.Restful.RestController;
 
-import com.example.todolist.API.Restful.Dto.Base.Response;
 import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
 import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
-import com.example.todolist.Domain.Exception.UserNotFoundException;
 import com.example.todolist.Domain.Service.TaskService;
 import com.example.todolist.Infrastructure.Repository.TaskRepository;
 import com.example.todolist.Infrastructure.Auth.AuthService;
@@ -30,24 +28,18 @@ public class TaskController {
     @PostMapping
     public ResponseEntity<?> createTask(@RequestBody @Valid CreateTaskRequest createTaskRequest, HttpServletRequest httpServletRequest) {
         var userId = authService.getSession(httpServletRequest).userId();
+        var task = taskService.createTask(
+            userId,
+            createTaskRequest.title(),
+            createTaskRequest.description()
+        );
 
-        try {
-            var task = taskService.createTask(
-                userId,
-                createTaskRequest.title(),
-                createTaskRequest.description()
-            );
+        taskRepository.save(task);
 
-            taskRepository.save(task);
-
-            var res = new ResponseWithData<>(
-                "Create task successful",
-                new TaskResponse(task.getUserId())
-            );
-            return ResponseEntity.status(201).body(res);
-
-        } catch (UserNotFoundException e) {
-            return ResponseEntity.status(401).body(new Response("Unauthorized"));
-        }
+        var res = new ResponseWithData<>(
+            "Create task successful",
+            new TaskResponse(task.getUserId())
+        );
+        return ResponseEntity.status(201).body(res);
     }
 }

@@ -21,6 +21,10 @@ public class AuthService {
      * get existing session
      */
     public UserSessionDto getSession(HttpServletRequest request) {
-        return (UserSessionDto)request.getSession(false).getAttribute(UserSessionKey);
+        var session = request.getSession(false);
+        if (session == null) {
+            return null;
+        }
+        return (UserSessionDto) session.getAttribute(UserSessionKey);
     }
 }
