@@ -14,7 +14,7 @@ public class TaskService {
     public Task createTask(String userId, String title, String description) {
         User user = userRepository.findUserById(userId);
         if (user == null) {
-            throw new UserNotFoundException("user_id", "User not found");
+            throw new UserNotFoundException("userId", "not found");
         }
 
         return new Task(title, description, userId);
