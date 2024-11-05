@@ -1,8 +1,10 @@
 package com.example.todolist.API.Restful.RestController;
 
+import com.example.todolist.API.Restful.Dto.Base.Response;
 import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
 import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
+import com.example.todolist.Domain.Entity.Task;
 import com.example.todolist.Domain.Service.TaskService;
 import com.example.todolist.Infrastructure.Repository.TaskRepository;
 import com.example.todolist.Infrastructure.Auth.AuthService;
@@ -10,10 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/tasks")
@@ -41,5 +40,15 @@ public class TaskController {
             new TaskResponse(task.getUserId())
         );
         return ResponseEntity.status(201).body(res);
+    }
+
+    @GetMapping
+    public ResponseEntity<?> getTaskById(@RequestParam("id") String taskId) {
+        Task task = taskRepository.findById(taskId);
+        if (task == null) {
+            return ResponseEntity.status(404).body(new Response("Task not found!"));
+        }
+
+        return ResponseEntity.status(200).body(task);
     }
 }
