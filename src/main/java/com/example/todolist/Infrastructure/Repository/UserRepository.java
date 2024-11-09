@@ -9,6 +9,6 @@ public interface UserRepository extends PagingAndSortingRepository<User, String>
     void save(User user);
     User findByEmail(String email);
     User findByUsername(String username);
-    User findUserById(String id);
-    User findUserByEmailAndPassword(String email, String password);
+    User findById(String id);
+    User findByEmailAndPassword(String email, String password);
 }

@@ -53,7 +53,7 @@ public class AuthController {
 
     @PostMapping("/sign-in")
     public ResponseEntity<?> signIn(@RequestBody @Valid SignInRequest signInRequest, HttpServletRequest request) {
-        User user = userRepository.findUserByEmailAndPassword(signInRequest.email(), signInRequest.password());
+        User user = userRepository.findByEmailAndPassword(signInRequest.email(), signInRequest.password());
         if (user == null) {
             return ResponseEntity.status(401).body(new Response("Sign in failed"));
         }

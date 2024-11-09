@@ -16,7 +16,7 @@ public class Task extends BaseEntity{
     @Column(name = "user_id")
     private String userId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable=false, updatable=false)
     public User user;
 
