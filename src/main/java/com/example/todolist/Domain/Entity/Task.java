@@ -1,7 +1,6 @@
 package com.example.todolist.Domain.Entity;
 
 import com.example.todolist.Domain.Validation.TaskValidation.TitleRule;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 
@@ -17,9 +16,8 @@ public class Task extends BaseEntity{
     @Column(name = "user_id")
     private String userId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", insertable=false, updatable=false)
-    @JsonManagedReference
     public User user;
 
     public Task(String title, String description, String userId) {

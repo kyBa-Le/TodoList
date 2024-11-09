@@ -3,6 +3,7 @@ package com.example.todolist.API.Restful.RestController;
 import com.example.todolist.API.Restful.Dto.Base.Response;
 import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
+import com.example.todolist.API.Restful.Dto.Response.NewTaskResponse;
 import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
 import com.example.todolist.Domain.Entity.Task;
 import com.example.todolist.Domain.Service.TaskService;
@@ -35,20 +36,36 @@ public class TaskController {
 
         taskRepository.save(task);
 
-        var res = new ResponseWithData<>(
+        var response = new ResponseWithData<>(
             "Create task successful",
-            new TaskResponse(task.getUserId())
+            new NewTaskResponse(task.getId())
         );
-        return ResponseEntity.status(201).body(res);
+        return ResponseEntity.status(201).body(response);
     }
 
-    @GetMapping
-    public ResponseEntity<?> getTaskById(@RequestParam("id") String taskId) {
-        Task task = taskRepository.findById(taskId);
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getTaskById(@PathVariable("id") String taskId, @RequestParam(value = "full-response", required = false) boolean fullResponse) {
+        Task task;
+        String message;
+
+        if (fullResponse) {
+            task = taskRepository.findByIdWithUser(taskId);
+            message = "get with full data response";
+        } else {
+            task = taskRepository.findById(taskId);
+            message = "get without full data response";
+        }
+
         if (task == null) {
             return ResponseEntity.status(404).body(new Response("Task not found!"));
         }
 
-        return ResponseEntity.status(200).body(task);
+        TaskResponse taskResponse = new TaskResponse(
+                task.getId(),
+                task.getTitle(),
+                task.getDescription(),
+                task.getUserId(),
+                fullResponse? task.user : null);
+        return ResponseEntity.status(200).body(new ResponseWithData<>(message,taskResponse));
     }
 }

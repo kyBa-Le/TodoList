@@ -14,7 +14,7 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 @NotNull
 @NotBlank
-@Size(min = 10, max = 10)
+@Size(min = 10, max = 10, message = "must be 10 characters")
 @Constraint(validatedBy = {})
 public @interface PhoneRule {
     String message() default "";
