@@ -5,7 +5,6 @@ import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
 import com.example.todolist.API.Restful.Dto.Response.NewTaskResponse;
 import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
-import com.example.todolist.Domain.Entity.Task;
 import com.example.todolist.Domain.Service.TaskService;
 import com.example.todolist.Infrastructure.Repository.TaskRepository;
 import com.example.todolist.Infrastructure.Auth.AuthService;
@@ -44,17 +43,8 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getTaskById(@PathVariable("id") String taskId, @RequestParam(value = "full-response", required = false) boolean fullResponse) {
-        Task task;
-        String message;
-
-        if (fullResponse) {
-            task = taskRepository.findByIdWithUser(taskId);
-            message = "get with full data response";
-        } else {
-            task = taskRepository.findById(taskId);
-            message = "get without full data response";
-        }
+    public ResponseEntity<?> getTaskById(@PathVariable("id") String taskId) {
+        var task = taskRepository.findById(taskId);
 
         if (task == null) {
             return ResponseEntity.status(404).body(new Response("Task not found!"));
@@ -64,8 +54,8 @@ public class TaskController {
                 task.getId(),
                 task.getTitle(),
                 task.getDescription(),
-                task.getUserId(),
-                fullResponse? task.user : null);
-        return ResponseEntity.status(200).body(new ResponseWithData<>(message,taskResponse));
+                task.getUserId()
+        );
+        return ResponseEntity.status(200).body(new ResponseWithData<>("",taskResponse));
     }
 }

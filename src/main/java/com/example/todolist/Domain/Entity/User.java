@@ -4,7 +4,6 @@ import com.example.todolist.Domain.Validation.UserValidation.EmailRule;
 import com.example.todolist.Domain.Validation.UserValidation.PasswordRule;
 import com.example.todolist.Domain.Validation.UserValidation.PhoneRule;
 import com.example.todolist.Domain.Validation.UserValidation.UsernameRule;
-import com.fasterxml.jackson.annotation.*;
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -27,7 +26,6 @@ public class User extends BaseEntity {
     private String phone;
 
     @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
-    @JsonBackReference
     public List<Task> tasks;
 
     protected User() {}
