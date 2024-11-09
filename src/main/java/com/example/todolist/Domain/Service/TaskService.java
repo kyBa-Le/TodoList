@@ -13,7 +13,7 @@ public class TaskService {
     private UserRepository userRepository;
 
     public Task createTask(String userId, String title, String description) {
-        User user = userRepository.findUserById(userId);
+        User user = userRepository.findById(userId);
         if (user == null) {
             throw new UserNotFoundException("userId", "not found");
         }

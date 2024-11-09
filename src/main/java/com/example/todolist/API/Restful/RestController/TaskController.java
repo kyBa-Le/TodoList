@@ -43,8 +43,8 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getTaskById(@PathVariable("id") String taskId) {
-        var task = taskRepository.findById(taskId);
+    public ResponseEntity<?> getTaskById(@PathVariable("id") String id) {
+        var task = taskRepository.findById(id);
 
         if (task == null) {
             return ResponseEntity.status(404).body(new Response("Task not found!"));

@@ -26,7 +26,7 @@ public class AuthenticationInterceptor implements HandlerInterceptor {
         var user = authService.getSession(request);
         var requestPath = request.getServletPath();
 
-        var isAuthenticated = user != null && userRepository.findUserById(user.userId()) != null;
+        var isAuthenticated = user != null && userRepository.findById(user.userId()) != null;
         var isAcceptedPath = acceptedPaths.contains(requestPath);
 
         if (!isAuthenticated && !isAcceptedPath) {

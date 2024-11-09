@@ -25,7 +25,7 @@ public class User extends BaseEntity {
     @PhoneRule
     private String phone;
 
-    @OneToMany(mappedBy = "userId", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "user")
     public List<Task> tasks;
 
     protected User() {}
