@@ -67,25 +67,21 @@ public class TaskController {
     @GetMapping("")
     public ResponseEntity<?> getAllTasks(@RequestParam(defaultValue = "0", name = "page") Integer pageNo,
                                          @RequestParam(defaultValue = "10", name = "size") Integer pageSize) {
-        try {
-            var paging = PageRequest.of(pageNo, pageSize);
-            var pageTasks = taskRepository.findAll(paging);
+        var paging = PageRequest.of(pageNo, pageSize);
+        var tasks = taskRepository.findAll(paging);
 
-            List<TaskResponse> taskResponses = new ArrayList<>();
-            pageTasks.forEach(task -> {
-                var response = new TaskResponse(
-                        task.getId(),
-                        task.getTitle(),
-                        task.getDescription(),
-                        task.getUserId()
-                );
-                taskResponses.add(response);
-            });
+        List<TaskResponse> taskResponses = new ArrayList<>();
+        tasks.forEach(task -> {
+            var response = new TaskResponse(
+                    task.getId(),
+                    task.getTitle(),
+                    task.getDescription(),
+                    task.getUserId()
+            );
+            taskResponses.add(response);
+        });
 
-            Page<TaskResponse> pageTaskResponses = new PageImpl<>(taskResponses, paging, pageTasks.getTotalElements());
-            return ResponseEntity.status(200).body(new ResponseWithData<>("",pageTaskResponses));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(400).body(e.getMessage());
-        }
+        Page<TaskResponse> pageTaskResponses = new PageImpl<>(taskResponses, paging, tasks.getTotalElements());
+        return ResponseEntity.status(200).body(new ResponseWithData<>("",pageTaskResponses));
     }
 }
