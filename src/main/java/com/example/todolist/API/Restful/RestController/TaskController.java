@@ -11,8 +11,13 @@ import com.example.todolist.Infrastructure.Auth.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @RestController
 @RequestMapping("/tasks")
@@ -57,5 +62,26 @@ public class TaskController {
                 task.getUserId()
         );
         return ResponseEntity.status(200).body(new ResponseWithData<>("",taskResponse));
+    }
+
+    @GetMapping("")
+    public ResponseEntity<?> getAllTasks(@RequestParam(defaultValue = "0", name = "page") Integer pageNo,
+                                         @RequestParam(defaultValue = "10", name = "size") Integer pageSize) {
+        var paging = PageRequest.of(pageNo, pageSize);
+        var tasks = taskRepository.findAll(paging);
+
+        List<TaskResponse> taskResponses = new ArrayList<>();
+        tasks.forEach(task -> {
+            var response = new TaskResponse(
+                    task.getId(),
+                    task.getTitle(),
+                    task.getDescription(),
+                    task.getUserId()
+            );
+            taskResponses.add(response);
+        });
+
+        Page<TaskResponse> pageTaskResponses = new PageImpl<>(taskResponses, paging, tasks.getTotalElements());
+        return ResponseEntity.status(200).body(new ResponseWithData<>("",pageTaskResponses));
     }
 }
