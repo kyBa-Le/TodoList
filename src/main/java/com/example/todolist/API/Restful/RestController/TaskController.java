@@ -79,7 +79,7 @@ public class TaskController {
                                             @RequestParam(defaultValue = "0", name = "page") Integer pageNo,
                                             @RequestParam(defaultValue = "10", name = "size") Integer pageSize) {
         var paging = PageRequest.of(pageNo, pageSize);
-        var tasks = taskRepository.findTaskByTitleContaining(title, paging);
+        var tasks = taskRepository.findByTitleContaining(title, paging);
 
         var taskResponses = TaskResponse.FromTasksToDtoResponses(tasks.getContent());
 
