@@ -12,6 +12,8 @@ public class Task extends BaseEntity{
 
     private String description;
 
+    private Enum<Status> status = Status.TODO;
+
     @NotNull
     @Column(name = "user_id")
     private String userId;
@@ -46,5 +48,13 @@ public class Task extends BaseEntity{
 
     public String getUserId() {
         return this.userId;
+    }
+
+    public Enum<Status> getStatus() {
+        return status;
+    }
+
+    public void setStatus(Enum<Status> status) {
+        this.status = status;
     }
 }
