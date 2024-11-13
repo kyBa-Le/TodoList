@@ -5,6 +5,9 @@ import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
 import com.example.todolist.API.Restful.Dto.Response.NewTaskResponse;
 import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
+import com.example.todolist.Domain.Exception.TaskAlreadyCompletedException;
+import com.example.todolist.Domain.Exception.TaskNotFoundException;
+import com.example.todolist.Infrastructure.EmailService.EmailNotificationService;
 import com.example.todolist.Domain.Service.TaskService;
 import com.example.todolist.Infrastructure.Repository.TaskRepository;
 import com.example.todolist.Infrastructure.Auth.AuthService;
@@ -26,6 +29,8 @@ public class TaskController {
     private TaskRepository taskRepository;
     @Autowired
     private AuthService authService;
+    @Autowired
+    private EmailNotificationService emailSenderService;
 
     @PostMapping
     public ResponseEntity<?> createTask(@RequestBody @Valid CreateTaskRequest createTaskRequest, HttpServletRequest httpServletRequest) {
@@ -53,12 +58,7 @@ public class TaskController {
             return ResponseEntity.status(404).body(new Response("Task not found!"));
         }
 
-        TaskResponse taskResponse = new TaskResponse(
-                task.getId(),
-                task.getTitle(),
-                task.getDescription(),
-                task.getUserId()
-        );
+        TaskResponse taskResponse = TaskResponse.FromTaskToTaskResponse(task);
         return ResponseEntity.status(200).body(new ResponseWithData<>("",taskResponse));
     }
 
@@ -68,7 +68,7 @@ public class TaskController {
         var paging = PageRequest.of(pageNo, pageSize);
         var tasks = taskRepository.findAll(paging);
 
-        var taskResponses = TaskResponse.FromTasksToDtoResponses(tasks.getContent());
+        var taskResponses = TaskResponse.FromTasksToTaskResponses(tasks.getContent());
 
         Page<TaskResponse> pageTaskResponses = new PageImpl<>(taskResponses, paging, tasks.getTotalElements());
         return ResponseEntity.status(200).body(new ResponseWithData<>("",pageTaskResponses));
@@ -81,9 +81,29 @@ public class TaskController {
         var paging = PageRequest.of(pageNo, pageSize);
         var tasks = taskRepository.findByTitleContaining(title, paging);
 
-        var taskResponses = TaskResponse.FromTasksToDtoResponses(tasks.getContent());
+        var taskResponses = TaskResponse.FromTasksToTaskResponses(tasks.getContent());
 
         Page<TaskResponse> pageTaskResponses = new PageImpl<>(taskResponses, paging, tasks.getTotalElements());
         return ResponseEntity.status(200).body(new ResponseWithData<>("",pageTaskResponses));
+    }
+
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<?> completeTask(@PathVariable("id") String id, HttpServletRequest request) {
+        var session = authService.getSession(request);
+
+        try {
+            var task = taskService.completeTask(id, session.userId());
+            taskRepository.save(task);
+
+            emailSenderService.sendEmailForTaskCompleting(task.user.getEmail(), task.getTitle());
+
+            TaskResponse taskResponse = TaskResponse.FromTaskToTaskResponse(task);
+            return ResponseEntity.status(200).body(new ResponseWithData<>("Task is done", taskResponse));
+
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.status(404).body(new Response(e.getMessage()));
+        } catch (TaskAlreadyCompletedException e) {
+            return ResponseEntity.status(400).body(new Response(e.getMessage()));
+        }
     }
 }

@@ -9,8 +9,8 @@ import jakarta.validation.constraints.NotNull;
 public class Task extends BaseEntity{
     @TitleRule
     private String title;
-
     private String description;
+    private Enum<TaskStatus> status = TaskStatus.TODO;
 
     @NotNull
     @Column(name = "user_id")
@@ -46,5 +46,13 @@ public class Task extends BaseEntity{
 
     public String getUserId() {
         return this.userId;
+    }
+
+    public Enum<TaskStatus> getStatus() {
+        return status;
+    }
+
+    public void setStatus(Enum<TaskStatus> status) {
+        this.status = status;
     }
 }
