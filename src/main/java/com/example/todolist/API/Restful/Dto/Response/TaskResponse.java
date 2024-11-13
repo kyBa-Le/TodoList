@@ -12,19 +12,13 @@ public record TaskResponse(
         String userId
 ) {
 
-    public static List<TaskResponse> FromTasksToDtoResponses(List<Task> tasks) {
+    public static List<TaskResponse> FromTasksToTaskResponses(List<Task> tasks) {
         return tasks.stream()
-                .map(task -> new TaskResponse(
-                        task.getId(),
-                        task.getTitle(),
-                        task.getDescription(),
-                        task.getStatus().toString(),
-                        task.getUserId()
-                ))
+                .map(TaskResponse::FromTaskToTaskResponse)
                 .collect(Collectors.toList());
     }
 
-    public static TaskResponse toDtoResponse(Task task) {
+    public static TaskResponse FromTaskToTaskResponse(Task task) {
         return new TaskResponse(
                 task.getId(),
                 task.getTitle(),

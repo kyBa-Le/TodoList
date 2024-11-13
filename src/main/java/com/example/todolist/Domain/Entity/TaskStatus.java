@@ -1,6 +1,6 @@
 package com.example.todolist.Domain.Entity;
 
-public enum Status {
+public enum TaskStatus {
     TODO,
     DONE
 }

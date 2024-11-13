@@ -5,8 +5,8 @@ import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
 import com.example.todolist.API.Restful.Dto.Response.NewTaskResponse;
 import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
-import com.example.todolist.API.Restful.ThirdPartsService.EmailSenderService;
-import com.example.todolist.Domain.Entity.Status;
+import com.example.todolist.Infrastructure.EmailService.EmailNotificationService;
+import com.example.todolist.Domain.Entity.TaskStatus;
 import com.example.todolist.Domain.Service.TaskService;
 import com.example.todolist.Infrastructure.Repository.TaskRepository;
 import com.example.todolist.Infrastructure.Auth.AuthService;
@@ -17,6 +17,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -29,7 +30,7 @@ public class TaskController {
     @Autowired
     private AuthService authService;
     @Autowired
-    private EmailSenderService emailSenderService;
+    private EmailNotificationService emailSenderService;
 
     @PostMapping
     public ResponseEntity<?> createTask(@RequestBody @Valid CreateTaskRequest createTaskRequest, HttpServletRequest httpServletRequest) {
@@ -57,7 +58,7 @@ public class TaskController {
             return ResponseEntity.status(404).body(new Response("Task not found!"));
         }
 
-        TaskResponse taskResponse = TaskResponse.toDtoResponse(task);
+        TaskResponse taskResponse = TaskResponse.FromTaskToTaskResponse(task);
         return ResponseEntity.status(200).body(new ResponseWithData<>("",taskResponse));
     }
 
@@ -67,7 +68,7 @@ public class TaskController {
         var paging = PageRequest.of(pageNo, pageSize);
         var tasks = taskRepository.findAll(paging);
 
-        var taskResponses = TaskResponse.FromTasksToDtoResponses(tasks.getContent());
+        var taskResponses = TaskResponse.FromTasksToTaskResponses(tasks.getContent());
 
         Page<TaskResponse> pageTaskResponses = new PageImpl<>(taskResponses, paging, tasks.getTotalElements());
         return ResponseEntity.status(200).body(new ResponseWithData<>("",pageTaskResponses));
@@ -80,27 +81,31 @@ public class TaskController {
         var paging = PageRequest.of(pageNo, pageSize);
         var tasks = taskRepository.findByTitleContaining(title, paging);
 
-        var taskResponses = TaskResponse.FromTasksToDtoResponses(tasks.getContent());
+        var taskResponses = TaskResponse.FromTasksToTaskResponses(tasks.getContent());
 
         Page<TaskResponse> pageTaskResponses = new PageImpl<>(taskResponses, paging, tasks.getTotalElements());
         return ResponseEntity.status(200).body(new ResponseWithData<>("",pageTaskResponses));
     }
 
-    @PostMapping("/complete")
-    public ResponseEntity<?> completeTask(@RequestParam("id") String id) {
-        var task = taskRepository.findByIdWithUser(id);
+    @PostMapping("/{id}/complete")
+    public ResponseEntity<?> completeTask(@PathVariable("id") String id, HttpServletRequest request) {
+        var session = authService.getSession(request);
 
-        if (task == null) {
-            return ResponseEntity.status(404).body(new Response("Task not found!"));
+        try {
+            var task = taskService.completeTask(id,session.userId());
+
+            emailSenderService.sendEmailForTaskCompleting(task.user.getEmail(), task.getTitle());
+
+            task.setStatus(TaskStatus.DONE);
+            taskRepository.save(task);
+            TaskResponse taskResponse = TaskResponse.FromTaskToTaskResponse(task);
+
+            return ResponseEntity.status(200).body(new ResponseWithData<>("Task is done", taskResponse));
+
+        } catch (MailException e) {
+            return ResponseEntity.status(500).body(new Response(e.getMessage()));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(400).body(new Response(e.getMessage()));
         }
-
-        task.setStatus(Status.DONE);
-        taskRepository.save(task);
-        TaskResponse taskResponse = TaskResponse.toDtoResponse(task);
-
-        String emailBody = "Your task \"" + task.getTitle() + "\" has been completed!";
-        emailSenderService.sendEmailForTaskCompleting(task.user.getEmail(), emailBody);
-
-        return ResponseEntity.status(200).body(new ResponseWithData<>("Task is done", taskResponse));
     }
 }
