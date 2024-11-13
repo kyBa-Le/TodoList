@@ -13,4 +13,7 @@ public interface TaskRepository extends PagingAndSortingRepository<Task, String>
 
     @Query("select t from Task t  join fetch t.user where t.id = :id")
     Task findByIdWithUser(String id);
+
+    @Query("select t from Task t join fetch t.user where t.id = :taskId and t.userId = :userId")
+    Task findByIdAndUserIdWithUser(String taskId, String userId);
 }

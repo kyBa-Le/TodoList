@@ -5,8 +5,9 @@ import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
 import com.example.todolist.API.Restful.Dto.Response.NewTaskResponse;
 import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
+import com.example.todolist.Domain.Exception.TaskAlreadyCompletedException;
+import com.example.todolist.Domain.Exception.TaskNotFoundException;
 import com.example.todolist.Infrastructure.EmailService.EmailNotificationService;
-import com.example.todolist.Domain.Entity.TaskStatus;
 import com.example.todolist.Domain.Service.TaskService;
 import com.example.todolist.Infrastructure.Repository.TaskRepository;
 import com.example.todolist.Infrastructure.Auth.AuthService;
@@ -17,7 +18,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.MailException;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -92,19 +92,17 @@ public class TaskController {
         var session = authService.getSession(request);
 
         try {
-            var task = taskService.completeTask(id,session.userId());
+            var task = taskService.completeTask(id, session.userId());
+            taskRepository.save(task);
 
             emailSenderService.sendEmailForTaskCompleting(task.user.getEmail(), task.getTitle());
 
-            task.setStatus(TaskStatus.DONE);
-            taskRepository.save(task);
             TaskResponse taskResponse = TaskResponse.FromTaskToTaskResponse(task);
-
             return ResponseEntity.status(200).body(new ResponseWithData<>("Task is done", taskResponse));
 
-        } catch (MailException e) {
-            return ResponseEntity.status(500).body(new Response(e.getMessage()));
-        } catch (RuntimeException e) {
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.status(404).body(new Response(e.getMessage()));
+        } catch (TaskAlreadyCompletedException e) {
             return ResponseEntity.status(400).body(new Response(e.getMessage()));
         }
     }
