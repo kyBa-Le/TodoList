@@ -4,7 +4,7 @@ import com.example.todolist.Domain.Validation.TaskValidation.TitleRule;
 
 public record UpdateTaskRequest(
      @TitleRule
-     String title,
-     String description
+     String newTitle,
+     String newDescription
 ) {
 }

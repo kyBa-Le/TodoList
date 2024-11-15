@@ -109,20 +109,25 @@ public class TaskController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateTask(@PathVariable("id") String id,
-                                        @RequestBody @Valid UpdateTaskRequest updateTaskRequest,
-                                        HttpServletRequest request) {
+    public ResponseEntity<?> editTaskContent(@PathVariable("id") String id,
+                                             @RequestBody @Valid UpdateTaskRequest updateTaskRequest,
+                                             HttpServletRequest request) {
         var session = authService.getSession(request);
 
-        var task = taskService.updateTask(id,
-                session.userId(),
-                updateTaskRequest.title(),
-                updateTaskRequest.description()
-        );
+        try {
+            var task = taskService.editTaskContent(
+                    id,
+                    session.userId(),
+                    updateTaskRequest.newTitle(),
+                    updateTaskRequest.newDescription()
+            );
+            taskRepository.save(task);
 
-        taskRepository.save(task);
+            var taskResponse = TaskResponse.FromTaskToTaskResponse(task);
+            return ResponseEntity.status(200).body(new ResponseWithData<>("Task updated successfully", taskResponse));
 
-        var taskResponse = TaskResponse.FromTaskToTaskResponse(task);
-        return ResponseEntity.status(200).body(new ResponseWithData<>("Task updated successfully", taskResponse));
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.status(404).body(new Response(e.getMessage()));
+        }
     }
 }

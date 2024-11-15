@@ -41,14 +41,14 @@ public class TaskService {
         return task;
     }
 
-    public Task updateTask(String id, String userId, String title, String description) {
+    public Task editTaskContent(String id, String userId, String newTitle, String newDescription) {
         var task = taskRepository.findByIdAndUserIdWithUser(id, userId);
         if (task == null) {
             throw new TaskNotFoundException("task not found");
         }
 
-        task.setTitle(title);
-        task.setDescription(description);
+        task.setTitle(newTitle);
+        task.setDescription(newDescription);
         return task;
     }
 }
