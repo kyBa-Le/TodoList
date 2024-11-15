@@ -3,6 +3,7 @@ package com.example.todolist.Domain.Service;
 import com.example.todolist.Domain.Entity.TaskStatus;
 import com.example.todolist.Domain.Entity.Task;
 import com.example.todolist.Domain.Entity.User;
+import com.example.todolist.Domain.Exception.BlankTaskTitleException;
 import com.example.todolist.Domain.Exception.TaskAlreadyCompletedException;
 import com.example.todolist.Domain.Exception.TaskNotFoundException;
 import com.example.todolist.Domain.Exception.UserNotFoundException;
@@ -38,6 +39,28 @@ public class TaskService {
         }
 
         task.setStatus(TaskStatus.DONE);
+        return task;
+    }
+
+    public Task updateTask(String id, String userId, String title, String description, boolean changeStatus) {
+        var task = taskRepository.findByIdAndUserIdWithUser(id, userId);
+
+        if (task == null) {
+            throw new TaskNotFoundException("task not found");
+        }
+
+        if (title != null) {
+            if (title.isBlank()) {
+                throw new BlankTaskTitleException("title", "mustn't blank");
+            }
+            task.setTitle(title);
+        }
+        if (description != null) {
+            task.setDescription(description);
+        }
+        if (changeStatus) {
+            task.setStatus(TaskStatus.TODO);
+        }
         return task;
     }
 }
