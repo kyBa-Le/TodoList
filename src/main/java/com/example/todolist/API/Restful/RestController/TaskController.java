@@ -1,13 +1,11 @@
 package com.example.todolist.API.Restful.RestController;
 
-import com.example.todolist.API.Restful.Dto.Base.ApiError;
 import com.example.todolist.API.Restful.Dto.Base.Response;
 import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
 import com.example.todolist.API.Restful.Dto.Request.UpdateTaskRequest;
 import com.example.todolist.API.Restful.Dto.Response.NewTaskResponse;
 import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
-import com.example.todolist.Domain.Exception.BlankTaskTitleException;
 import com.example.todolist.Domain.Exception.TaskAlreadyCompletedException;
 import com.example.todolist.Domain.Exception.TaskNotFoundException;
 import com.example.todolist.Infrastructure.EmailService.EmailNotificationService;
@@ -90,7 +88,7 @@ public class TaskController {
         return ResponseEntity.status(200).body(new ResponseWithData<>("",pageTaskResponses));
     }
 
-    @PostMapping("/{id}/complete")
+    @PutMapping("/{id}/complete")
     public ResponseEntity<?> completeTask(@PathVariable("id") String id, HttpServletRequest request) {
         var session = authService.getSession(request);
 
@@ -110,28 +108,21 @@ public class TaskController {
         }
     }
 
-    @PutMapping("/{id}/update")
+    @PutMapping("/{id}")
     public ResponseEntity<?> updateTask(@PathVariable("id") String id,
-                                        @RequestBody UpdateTaskRequest updateTaskRequest,
+                                        @RequestBody @Valid UpdateTaskRequest updateTaskRequest,
                                         HttpServletRequest request) {
-        try {
-            var session = authService.getSession(request);
+        var session = authService.getSession(request);
 
-            var task = taskService.updateTask(id,
-                    session.userId(),
-                    updateTaskRequest.title(),
-                    updateTaskRequest.description(),
-                    updateTaskRequest.changeStatus()
-            );
+        var task = taskService.updateTask(id,
+                session.userId(),
+                updateTaskRequest.title(),
+                updateTaskRequest.description()
+        );
 
-            taskRepository.save(task);
+        taskRepository.save(task);
 
-            var taskResponse = TaskResponse.FromTaskToTaskResponse(task);
-            return ResponseEntity.status(200).body(new ResponseWithData<>("Task updated successfully", taskResponse));
-
-        } catch (BlankTaskTitleException e) {
-            var error = ApiError.FromHasErrorCodeExceptionToApiError("title", e);
-            return ResponseEntity.status(400).body(error);
-        }
+        var taskResponse = TaskResponse.FromTaskToTaskResponse(task);
+        return ResponseEntity.status(200).body(new ResponseWithData<>("Task updated successfully", taskResponse));
     }
 }
