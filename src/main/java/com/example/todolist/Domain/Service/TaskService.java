@@ -40,4 +40,15 @@ public class TaskService {
         task.setStatus(TaskStatus.DONE);
         return task;
     }
+
+    public Task editTaskContent(String id, String userId, String newTitle, String newDescription) {
+        var task = taskRepository.findByIdAndUserIdWithUser(id, userId);
+        if (task == null) {
+            throw new TaskNotFoundException("task not found");
+        }
+
+        task.setTitle(newTitle);
+        task.setDescription(newDescription);
+        return task;
+    }
 }

@@ -3,6 +3,7 @@ package com.example.todolist.API.Restful.RestController;
 import com.example.todolist.API.Restful.Dto.Base.Response;
 import com.example.todolist.API.Restful.Dto.Base.ResponseWithData;
 import com.example.todolist.API.Restful.Dto.Request.CreateTaskRequest;
+import com.example.todolist.API.Restful.Dto.Request.UpdateTaskRequest;
 import com.example.todolist.API.Restful.Dto.Response.NewTaskResponse;
 import com.example.todolist.API.Restful.Dto.Response.TaskResponse;
 import com.example.todolist.Domain.Exception.TaskAlreadyCompletedException;
@@ -87,7 +88,7 @@ public class TaskController {
         return ResponseEntity.status(200).body(new ResponseWithData<>("",pageTaskResponses));
     }
 
-    @PostMapping("/{id}/complete")
+    @PutMapping("/{id}/complete")
     public ResponseEntity<?> completeTask(@PathVariable("id") String id, HttpServletRequest request) {
         var session = authService.getSession(request);
 
@@ -104,6 +105,29 @@ public class TaskController {
             return ResponseEntity.status(404).body(new Response(e.getMessage()));
         } catch (TaskAlreadyCompletedException e) {
             return ResponseEntity.status(400).body(new Response(e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> editTaskContent(@PathVariable("id") String id,
+                                             @RequestBody @Valid UpdateTaskRequest updateTaskRequest,
+                                             HttpServletRequest request) {
+        var session = authService.getSession(request);
+
+        try {
+            var task = taskService.editTaskContent(
+                    id,
+                    session.userId(),
+                    updateTaskRequest.newTitle(),
+                    updateTaskRequest.newDescription()
+            );
+            taskRepository.save(task);
+
+            var taskResponse = TaskResponse.FromTaskToTaskResponse(task);
+            return ResponseEntity.status(200).body(new ResponseWithData<>("Task updated successfully", taskResponse));
+
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.status(404).body(new Response(e.getMessage()));
         }
     }
 }
