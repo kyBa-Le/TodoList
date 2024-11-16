@@ -51,4 +51,8 @@ public class TaskService {
         task.setDescription(newDescription);
         return task;
     }
+
+    public void deleteTask(String taskId, String userId) {
+        taskRepository.deleteByIdAndUserId(taskId, userId);
+    }
 }

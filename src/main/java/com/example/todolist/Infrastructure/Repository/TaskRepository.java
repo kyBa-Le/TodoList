@@ -10,6 +10,7 @@ public interface TaskRepository extends PagingAndSortingRepository<Task, String>
     void save(Task task);
     Task findById(String id);
     Page<Task> findByTitleContaining(String title, Pageable pageable);
+    void deleteByIdAndUserId(String id, String userId);
 
     @Query("select t from Task t  join fetch t.user where t.id = :id")
     Task findByIdWithUser(String id);
