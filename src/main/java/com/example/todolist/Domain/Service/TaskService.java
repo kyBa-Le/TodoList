@@ -51,4 +51,12 @@ public class TaskService {
         task.setDescription(newDescription);
         return task;
     }
+
+    public Task findTaskToDelete(String id, String userId) {
+        var task = taskRepository.findByIdAndUserId(id, userId);
+        if (task == null) {
+            throw new TaskNotFoundException("task not found");
+        }
+        return task;
+    }
 }

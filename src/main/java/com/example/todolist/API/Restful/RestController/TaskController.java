@@ -130,4 +130,17 @@ public class TaskController {
             return ResponseEntity.status(404).body(new Response(e.getMessage()));
         }
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteTask(@PathVariable("id") String id, HttpServletRequest request) {
+        var session = authService.getSession(request);
+        try {
+            var task = taskService.findTaskToDelete(id, session.userId());
+            taskRepository.delete(task);
+        } catch (TaskNotFoundException e) {
+            return ResponseEntity.status(404).body(new Response(e.getMessage()));
+        }
+
+        return ResponseEntity.status(200).body(new Response("Task deleted successfully"));
+    }
 }
