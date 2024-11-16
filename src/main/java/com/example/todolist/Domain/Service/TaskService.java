@@ -52,8 +52,8 @@ public class TaskService {
         return task;
     }
 
-    public Task isAbleToDelete(String id, String userId) {
-        var task = taskRepository.findByIdAndUserIdWithUser(id, userId);
+    public Task findTaskToDelete(String id, String userId) {
+        var task = taskRepository.findByIdAndUserId(id, userId);
         if (task == null) {
             throw new TaskNotFoundException("task not found");
         }
