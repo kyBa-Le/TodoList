@@ -135,8 +135,8 @@ public class TaskController {
     public ResponseEntity<?> deleteTask(@PathVariable("id") String id, HttpServletRequest request) {
         var session = authService.getSession(request);
         try {
-            taskService.deleteTask(id, session.userId());
-
+            var task = taskService.isAbleToDelete(id, session.userId());
+            taskRepository.delete(task);
         } catch (TaskNotFoundException e) {
             return ResponseEntity.status(404).body(new Response(e.getMessage()));
         }
