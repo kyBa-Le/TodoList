@@ -52,7 +52,11 @@ public class TaskService {
         return task;
     }
 
-    public void deleteTask(String taskId, String userId) {
-        taskRepository.deleteByIdAndUserId(taskId, userId);
+    public void deleteTask(String id, String userId) {
+        var task = taskRepository.findByIdAndUserIdWithUser(id, userId);
+        if (task == null) {
+            throw new TaskNotFoundException("task not found");
+        }
+        taskRepository.deleteByIdAndUserId(task.getId(), userId);
     }
 }
